@@ -1,6 +1,6 @@
 # GPT Crawler <!-- omit from toc -->
 
-Crawl a site to generate knowledge files to create your own custom GPT from one or multiple URLs
+Crawl an Outline site to generate knowledge files to create your own custom GPT from one or multiple URLs
 
 ![Gif showing the crawl run](https://github.com/BuilderIO/gpt-crawler/assets/844291/feb8763a-152b-4708-9c92-013b5c70d2f2)
 
@@ -38,7 +38,7 @@ This project crawled the docs and generated the file that I uploaded as the basi
 Be sure you have Node.js >= 16 installed.
 
 ```sh
-git clone https://github.com/builderio/gpt-crawler
+git clone https://github.com/colttylerwilson/gpt-crawler-outline.git
 ```
 
 #### Install dependencies

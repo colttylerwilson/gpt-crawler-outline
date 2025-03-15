@@ -60,10 +60,13 @@ export async function crawl(config: Config) {
         async requestHandler({ request, page, enqueueLinks, log, pushData }) {
           pageCounter++;
           log.info(
-            `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`
+            `Crawling: Page ${pageCounter} / ${config.maxPagesToCrawl} - URL: ${request.loadedUrl}...`,
           );
 
-          const extractContentRecursively = (obj: any, seen = new Set<string>()): string[] => {
+          const extractContentRecursively = (
+            obj: any,
+            seen = new Set<string>(),
+          ): string[] => {
             let extracted: string[] = [];
 
             if (!obj || typeof obj !== "object") {
@@ -78,13 +81,21 @@ export async function crawl(config: Config) {
             seen.add(objKey);
 
             // Extract text if it exists and hasn't been seen before
-            if (obj.text && typeof obj.text === "string" && !seen.has(obj.text.trim())) {
+            if (
+              obj.text &&
+              typeof obj.text === "string" &&
+              !seen.has(obj.text.trim())
+            ) {
               extracted.push(obj.text.trim());
               seen.add(obj.text.trim()); // Mark text as seen
             }
 
             // Extract links as plain text (no Markdown)
-            if (obj.href && typeof obj.href === "string" && !seen.has(obj.href)) {
+            if (
+              obj.href &&
+              typeof obj.href === "string" &&
+              !seen.has(obj.href)
+            ) {
               extracted.push(`${obj.text || "Link"}: ${obj.href}`); // Just "Link: https://example.com"
               seen.add(obj.href);
             }
@@ -111,31 +122,39 @@ export async function crawl(config: Config) {
           };
 
           // Inside your `page.on('response')`:
-          page.on('response', async (response) => {
-            if (response.url().includes('documents.info')) {
+          page.on("response", async (response) => {
+            if (response.url().includes("documents.info")) {
               try {
                 const jsonResponse = await response.json();
-                console.log("Full API Response:", JSON.stringify(jsonResponse, null, 2)); // Debugging log
+                console.log(
+                  "Full API Response:",
+                  JSON.stringify(jsonResponse, null, 2),
+                ); // Debugging log
 
                 // Ensure `data.document` exists
                 if (!jsonResponse.data || !jsonResponse.data.document) {
-                  console.warn(`Skipping document - Missing data.document for URL: ${request.loadedUrl}`);
+                  console.warn(
+                    `Skipping document - Missing data.document for URL: ${request.loadedUrl}`,
+                  );
                   return;
                 }
 
                 // Extract content recursively with duplicate removal
                 const documentData = jsonResponse.data.document;
-                const extractedText = extractContentRecursively(documentData).join("\n\n");
+                const extractedText =
+                  extractContentRecursively(documentData).join("\n\n");
 
                 // Push extracted, readable text with links and images
                 await pushData({
                   title: documentData.title || "Untitled",
                   url: request.loadedUrl || "No URL available",
-                  text: extractedText || "No content available"
+                  text: extractedText || "No content available",
                 });
-
               } catch (error) {
-                console.error(`Error processing response from ${response.url()}:`, error);
+                console.error(
+                  `Error processing response from ${response.url()}:`,
+                  error,
+                );
               }
             }
           });
@@ -145,8 +164,12 @@ export async function crawl(config: Config) {
 
           // Extract links and add to the crawling queue
           await enqueueLinks({
-            globs: typeof config.match === "string" ? [config.match] : config.match,
-            exclude: typeof config.exclude === "string" ? [config.exclude] : config.exclude ?? [],
+            globs:
+              typeof config.match === "string" ? [config.match] : config.match,
+            exclude:
+              typeof config.exclude === "string"
+                ? [config.exclude]
+                : config.exclude ?? [],
           });
         },
         // Comment this option to scrape the full website.
